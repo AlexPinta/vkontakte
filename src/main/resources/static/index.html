@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8"/>
+    <title>VK service (start page)</title>
+</head>
+<body>
+<form id="serverRegistration" action="https://oauth.vk.com/authorize?client_id=5538646&display=popup&redirect_uri=http://www.ancestry.com:8080/authorization&scope=friends&response_type=code&v=5.52&state=serverCode" method="POST">
+    <button id="serverSubmit" type="submit">Server side auth.</button>
+</form>
+<form id="loginForm" action="https://oauth.vk.com/authorize?client_id=5538646&display=popup&redirect_uri=http://www.ancestry.com:8080/authorization&scope=friends&response_type=token&v=5.52&state=client" method="POST">
+    <button type="submit">Client side auth.</button>
+</form>
+</body>
+
+</html>

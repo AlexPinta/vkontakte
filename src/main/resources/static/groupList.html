@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8"/>
+    <title>VK service</title>
+
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script src="js/group.js"></script>
+    <script src="jquery-easyui-1.4.5/jquery.easyui.min.js"></script>
+
+    <script type="text/javascript">
+        window.onload = function() {
+            const KEY_INDEX = 0;
+            const VALUE_INDEX = 1;
+            if(window.location.pathname.match(/\/authorization/i) != null) {
+                var hash = window.location.hash.replace('#', '');
+                var data = {};
+                hash.split('&').forEach(function(param) {
+                    var keyValue = param.split('=');
+                    if(keyValue.length) {
+                        data[keyValue[KEY_INDEX]] = keyValue[VALUE_INDEX];
+                    }
+                });
+                $.ajax({
+                    url: "/authorization",
+                    type: "POST",
+                    data: JSON.stringify(data),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: success()
+                });
+                function success() {
+                    history.pushState({}, null, window.location.origin + '/groups');
+                }
+
+            }
+        }
+    </script>
+
+</head>
+<body>
+    <form id="addGroup" role="form">
+        <div>
+            <label for="group">Group</label>
+            <input type="text" id="group" placeholder="Group name">
+        </div>
+        <div>
+            <label for="vk_link">VK link</label>
+            <input type="text" id="vk_link" placeholder="VK link to group">
+        </div>
+        <button id="btn-add" type="button" onclick="addGroup()">Add</button>
+    </form>
+</body>
+
+<ul id="tree"></ul>
+
+</html>
