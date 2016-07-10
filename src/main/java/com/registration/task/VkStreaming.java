@@ -47,7 +47,7 @@ public class VkStreaming {
     private String serverCode;
     private Map<Group, Map<Long, Long>> lastComment = new HashMap<>();
 
-    @Scheduled(cron="* /5 * * * ?")
+    @Scheduled(cron="0 */1 * * * *")
     private void getStream() {
         if (serverTemporaryCode == null) return;
         if (isAuthorize()) {
