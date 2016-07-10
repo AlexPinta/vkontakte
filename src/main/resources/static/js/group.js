@@ -4,11 +4,11 @@ var groupLink;
 function addGroup() {
     groupName = $('#group').val();
     groupLink = $('#vk_link').val();
-    checkGroups(groupName, groupLink);
+    checkGroups(groupName);
 };
 
 
-function checkGroups(groupName, groupLink) {
+function checkGroups(groupName) {
     $.ajax({
         url: 'https://api.vk.com/method/groups.search?q=' + groupName + '&access_token='+getCookie('access_token'),
         type: "GET",

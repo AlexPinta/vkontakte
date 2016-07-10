@@ -1,10 +1,10 @@
-#server:
-#  port: 80
-custom.domain: your_site.com
+custom.domain: www.ancestry.com
+custom.clientID: 5538646
+custom.clientSecret: 6I04Vp18QEGvjUaLfOPE
+custom.redirectUrl: http://www.ancestry.com:8080/authorization
 
 spring:
     url: jdbc:h2:mem:vk_service;DB_CLOSE_ON_EXIT=FALSE
-#    datasource.url: jdbc:h2:file:/home/alex/db/vk;DB_CLOSE_ON_EXIT=FALSE
     datasource.username: sa
     datasource.password: sa
     datasource.driverClassName: org.h2.Driver

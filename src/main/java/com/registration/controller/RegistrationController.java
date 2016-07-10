@@ -5,7 +5,6 @@ import com.registration.core.UserCredentialDetails;
 import com.registration.dao.UserCredentialDetailsRepository;
 import com.registration.dao.UserRepository;
 import com.registration.task.VkStreaming;
-import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -13,7 +12,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
-
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
         import java.util.Map;
@@ -23,19 +21,19 @@ import javax.servlet.http.HttpServletResponse;
 public class RegistrationController {
     public final String CLIENT_REGISTRATION = "client";
     public final String SERVER_REGISTRATION = "serverCode";
+    public final Integer DEFAULT_EXPIRED = 86400;
     @Value("${custom.domain}") String cookieDomain;
+    @Value("${custom.clientID}") String clientId;
+    @Value("${custom.redirectUrl}") String redirectUrl;
 
-    @Autowired
-    private UserCredentialDetailsRepository credentialDetailsRepository;
-
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    VkStreaming streaming;
+    @Autowired private UserCredentialDetailsRepository credentialDetailsRepository;
+    @Autowired private UserRepository userRepository;
+    @Autowired private VkStreaming streaming;
 
     @RequestMapping(value = "/", method = RequestMethod.GET)
-    public ModelAndView main() {
+    public ModelAndView main(HttpServletResponse response) {
+        addCookie(response, "client_Id", clientId, DEFAULT_EXPIRED, cookieDomain);
+        addCookie(response, "redirect_URI", redirectUrl, DEFAULT_EXPIRED, cookieDomain);
         return new ModelAndView("index.html");
     }
 
@@ -59,7 +57,7 @@ public class RegistrationController {
                                                @RequestBody(required = false) Map<String, String> credentials) {
         //TODO need to rewrite on hibernate validator
         if (!CLIENT_REGISTRATION.equals(credentials.get("state")))
-            return new ResponseEntity<String>("Incorrect credentials", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("Incorrect credentials", HttpStatus.BAD_REQUEST);
 
         try {
             Long userId = Long.parseLong(credentials.get("user_id"));
@@ -68,10 +66,7 @@ public class RegistrationController {
 
             //set cookies
             if (existedToken == null || !token.equals(existedToken)) {
-                Cookie token_cookie = new Cookie("access_token", token);
-                token_cookie.setMaxAge(expired);
-                token_cookie.setDomain(cookieDomain);
-                response.addCookie(token_cookie);
+                addCookie(response, "access_token", token, expired, cookieDomain);
             }
             User user = userRepository.findByUserId(userId);
             if (user == null) {
@@ -85,9 +80,16 @@ public class RegistrationController {
             userTemporaryRecord.setToken(token);
             userTemporaryRecord.setUser(user);
             credentialDetailsRepository.save(userTemporaryRecord);
-            return new ResponseEntity<String>("Authorization success", HttpStatus.OK);
+            return new ResponseEntity<>("Authorization success", HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<String>("Incorrect credentials", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("Incorrect credentials", HttpStatus.BAD_REQUEST);
         }
+    }
+
+    private void addCookie(HttpServletResponse response, String cookie, String value, Integer expired, String domain) {
+        Cookie token_cookie = new Cookie(cookie, value);
+        token_cookie.setMaxAge(expired);
+        token_cookie.setDomain(domain);
+        response.addCookie(token_cookie);
     }
 }

@@ -7,6 +7,7 @@ import com.registration.dao.GroupRepository;
 import com.registration.dao.TopicCommentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
@@ -29,8 +30,12 @@ public class VkStreaming {
     public final String GET_ALL_GROUP_TOPICS = "https://api.vk.com/method/board.getTopics?group_id=%d&access_token=%s";
     public final String GET_ALL_TOPIC_COMMENTS = "https://api.vk.com/method/board.getComments?group_id=%d" +
             "&topic_id=%s&start_comment_id=%d&access_token=%s&v=5.52";
-    public final String GET_SERVER_CODE = "https://oauth.vk.com/access_token?client_id=5538646&client_secret=6I04Vp18QEGvjUaLfOPE" +
-            "&redirect_uri=http://www.ancestry.com:8080/authorization&code=%s";
+    public final String GET_SERVER_CODE = "https://oauth.vk.com/access_token?client_id=%s&client_secret=%s" +
+            "&redirect_uri=%s&code=%s";
+
+    @Value("${custom.redirectUrl}") String redirectUrl;
+    @Value("${custom.clientSecret}") String clientSecret;
+    @Value("${custom.clientID}") String clientId;
 
     @Autowired
     GroupRepository groupRepository;
@@ -103,7 +108,7 @@ public class VkStreaming {
     private boolean isAuthorize() {
         boolean status = false;
         if (serverCode == null) {
-            String query = String.format(GET_SERVER_CODE, serverTemporaryCode);
+            String query = String.format(GET_SERVER_CODE, clientId, clientSecret, redirectUrl, serverTemporaryCode);
             final ResponseEntity<String> serverToken = restTemplate.getForEntity(query, String.class);
             if (serverToken.getStatusCode() == HttpStatus.OK) {
                 Map<String, Object> map = convertJSON(serverToken.getBody());

@@ -3,12 +3,36 @@
 <head>
     <meta charset="UTF-8"/>
     <title>VK service (start page)</title>
+
+    <script type="text/javascript">
+        function getCookie(name) {
+            var matches = document.cookie.match(new RegExp(
+                    "(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
+            ));
+            return matches ? decodeURIComponent(matches[1]) : "";
+        }
+        function getSecureUrl(templateString) {
+            var url = templateString;
+            url = url.replace(":redirect_URI", getCookie('redirect_URI').replace(new RegExp('\"', 'g'), ''));
+            url = url.replace(":client_Id", getCookie('client_Id').trim());
+            return url;
+        }
+        function activateServer(formElem) {
+            formElem.action = getSecureUrl("https://oauth.vk.com/authorize?client_id=:client_Id" +
+                    "&display=popup&redirect_uri=:redirect_URI&scope=friends&response_type=code&v=5.52&state=serverCode");
+        }
+        function activateClient(formElem) {
+            formElem.action = getSecureUrl("https://oauth.vk.com/authorize?client_id=:client_Id" +
+                    "&display=popup&redirect_uri=:redirect_URI&scope=friends&response_type=token&v=5.52&state=client");
+        }
+    </script>
+
 </head>
 <body>
-<form id="serverRegistration" action="https://oauth.vk.com/authorize?client_id=5538646&display=popup&redirect_uri=http://www.ancestry.com:8080/authorization&scope=friends&response_type=code&v=5.52&state=serverCode" method="POST">
-    <button id="serverSubmit" type="submit">Server side auth.</button>
+<form id="serverRegistration" method="POST" onsubmit="return activateServer(this)">
+    <button type="submit">Server side auth.</button>
 </form>
-<form id="loginForm" action="https://oauth.vk.com/authorize?client_id=5538646&display=popup&redirect_uri=http://www.ancestry.com:8080/authorization&scope=friends&response_type=token&v=5.52&state=client" method="POST">
+<form id="loginForm" method="POST" onsubmit="return activateClient(this)">
     <button type="submit">Client side auth.</button>
 </form>
 </body>
